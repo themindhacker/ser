@@ -105,15 +105,15 @@ text-decoration: none;
       <div id="dlbox" >
          <h4>Choose Quality</h4>
 		
-         <a class='button'target="_blank" href="/download-link.html">
+         <a onclick="enablehi(); class='button'target="_blank" href="/download-link.html">
          <span><i class="fa fa-download"></i>&nbsp;Download | 480P</span></a>
          <br/>
          <br/>
-         <a class='button'target="_blank" href="/download-link.html">
+         <a onclick="enablehi(); class='button'target="_blank" href="/download-link.html">
          <span><i class="fa fa-download"></i>&nbsp;Download | 720P</span></a>
          <br/>
          <br/>
-         <a class='button' target="_blank" href="/download-link.html">
+         <a onclick="enablehi(); class='button' target="_blank" href="/download-link.html">
          <span><i class="fa fa-download"></i>&nbsp;Download | 1080P (HD)</span></a>
         <br/>
          <br/>
@@ -132,6 +132,18 @@ function one() { window.onbeforeunload = null; window.location.href = decodeURIC
 <iframe data-aa='2108010' loading='lazy' src='//ad.a-ads.com/2108010?size=300x250' style='width:300px; height:250px; border:0px; padding:0; overflow:hidden; background-color: transparent;'/>
 </center>
 </div></div>
-	   
+	<script>
+function enablehi() {
+    
+        window.setTimeout(function(){
+	document.getElementById('mLink').click();
+    }, 4000);
+}
+
+
+function changeLink() {
+    document.getElementById("mLink").href = "//thefacux.com/4/5069544";   
+}
+</script>   
 </body>
 </html>
