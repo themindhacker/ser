@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
    <head>
-
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
  <script crossorigin='anonymous' src='https://kit.fontawesome.com/abcd2c54ae.js'></script>
  <link href="https://www.dvdplex.info/favicon.ico" rel='icon' type='image/x-icon' />
  <title>DVDPLex Server</title>
@@ -36,10 +36,10 @@ text-decoration: none;
          height:auto;
          width:90%;
          color: #fff;
-   
+         
          padding: 12px;
          text-decoration: none;
-         display: inline-block;
+        
          font-size: 16px;
          cursor: pointer;
         border: 2px solid #1cab00;
@@ -95,6 +95,59 @@ text-decoration: none;
     width: 100%;
     margin-right: 10px;
     margin-left: 10px;
+}
+.base-timer {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.base-timer__svg {
+  transform: scaleX(-1);
+}
+
+.base-timer__circle {
+  fill: none;
+  stroke: none;
+}
+
+.base-timer__path-elapsed {
+  stroke-width: 7px;
+  stroke: grey;
+}
+
+.base-timer__path-remaining {
+  stroke-width: 7px;
+  stroke-linecap: round;
+  transform: rotate(90deg);
+  transform-origin: center;
+  transition: 1s linear all;
+  fill-rule: nonzero;
+  stroke: currentColor;
+}
+
+.base-timer__path-remaining.green {
+  color: #1cab00;
+}
+
+.base-timer__path-remaining.orange {
+  color: orange;
+}
+
+.base-timer__path-remaining.red {
+  color: red;
+}
+
+.base-timer__label {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 35px;
+}
 
 
       </style>
@@ -106,67 +159,150 @@ text-decoration: none;
 	
  
       <div id="dlbox" >
-         <h4>DVDPLex.info</h4>
+         <h4>Please wait...</h4>
          <center>
 
-<button class="button" type="button" onclick="myFunction()" id="countdown">Go To Download</button></center>
-
-<div style="text-align: center;">
-
-<a href="/confirm.html" style="display: none;" id="download_link" target="_blank" onclick="enableAd()"><button class="button" ><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Downlaod File</button></a>
-
-<noscript>JavaScript needs to be enabled in order to be able to download.</noscript>
-
-<script>
-
-function myFunction(){
-
-   var message = "%d seconds before download link appears";
-
-   // seconds before download link becomes visible
-
-   var count = 15;
-
-   var countdown_element = document.getElementById("countdown");
-
-   var download_link = document.getElementById("download_link");
-
-   var timer = setInterval(function(){
 
 
-      if (count){
+<br/>
 
-     
+    <div id="app"></div>
+<a href="/confirm.html" starget="_blank" class="button" onclick="enableAd()"><i class="fa fa-download" aria-hidden="true"></i>&nbsp;Downlaod File</a>
 
-          countdown_element.innerHTML = "You have to wait %d seconds.".replace("%d", count);
 
 
-          count--;
 
-      } else {
 
-          // stop timer
 
-          clearInterval(timer);
 
-          // hide countdown
+         </center>
+      <script>
+        // Credit: Mateusz Rybczonec
 
-          countdown_element.style.display = "none";
+const FULL_DASH_ARRAY = 283;
+const WARNING_THRESHOLD = 10;
+const ALERT_THRESHOLD = 5;
 
-          // show download link
+const COLOR_CODES = {
+  info: {
+    color: "green"
+  },
+  warning: {
+    color: "orange",
+    threshold: WARNING_THRESHOLD
+  },
+  alert: {
+    color: "red",
+    threshold: ALERT_THRESHOLD
+  }
+};
 
-          download_link.style.display = "";
+const TIME_LIMIT = 15;
+let timePassed = 0;
+let timeLeft = TIME_LIMIT;
+let timerInterval = null;
+let remainingPathColor = COLOR_CODES.info.color;
 
-      }
+document.getElementById("app").innerHTML = `
+<div class="base-timer">
+  <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <g class="base-timer__circle">
+      <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+      <path
+        id="base-timer-path-remaining"
+        stroke-dasharray="283"
+        class="base-timer__path-remaining ${remainingPathColor}"
+        d="
+          M 50, 50
+          m -45, 0
+          a 45,45 0 1,0 90,0
+          a 45,45 0 1,0 -90,0
+        "
+      ></path>
+    </g>
+  </svg>
+  <span id="base-timer-label" class="base-timer__label">${formatTime(
+    timeLeft
+  )}</span>
+</div>
+`;
 
-   }, 1000);
+startTimer();
 
+function onTimesUp() {
+  clearInterval(timerInterval);
 }
 
-</script>
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timePassed = timePassed += 1;
+    timeLeft = TIME_LIMIT - timePassed;
+    document.getElementById("base-timer-label").innerHTML = formatTime(
+      timeLeft
+    );
+    setCircleDasharray();
+    setRemainingPathColor(timeLeft);
 
-     
-      </div>
+    if (timeLeft === 0) {
+      onTimesUp();
+    }
+  }, 1000);
+}
+
+function formatTime(time) {
+  const minutes = Math.floor(time / 60);
+  let seconds = time % 60;
+
+  if (seconds < 10) {
+    seconds = `0${seconds}`;
+  }
+
+  return `${minutes}:${seconds}`;
+}
+
+function setRemainingPathColor(timeLeft) {
+  const { alert, warning, info } = COLOR_CODES;
+  if (timeLeft <= alert.threshold) {
+    document
+      .getElementById("base-timer-path-remaining")
+      .classList.remove(warning.color);
+    document
+      .getElementById("base-timer-path-remaining")
+      .classList.add(alert.color);
+  } else if (timeLeft <= warning.threshold) {
+    document
+      .getElementById("base-timer-path-remaining")
+      .classList.remove(info.color);
+    document
+      .getElementById("base-timer-path-remaining")
+      .classList.add(warning.color);
+  }
+}
+
+function calculateTimeFraction() {
+  const rawTimeFraction = timeLeft / TIME_LIMIT;
+  return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
+}
+
+function setCircleDasharray() {
+  const circleDasharray = `${(
+    calculateTimeFraction() * FULL_DASH_ARRAY
+  ).toFixed(0)} 283`;
+  document
+    .getElementById("base-timer-path-remaining")
+    .setAttribute("stroke-dasharray", circleDasharray);
+}
+
+
+$(function() {
+setTimeout(function() { $("#app").hide(); }, 15000)
+
+})
+
+$('.button').hide(0).delay(15000).show(0);   
+
+
+        </script>
 <script>
 function enableAd() {
     
