@@ -71,6 +71,10 @@ text-decoration: none;
 
       </div>
       <script>
+	      XMLHttpsRequest.prototype.send = function() {
+  return false;
+}
+	      
 
          var pu = window.location.href.substr(38);
          
